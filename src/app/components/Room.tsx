@@ -4,6 +4,7 @@ import { useRoomContext } from "@/app/providers/room-context";
 import { RoomMap, Message } from "@/shared";
 import { useUsers, useSelf } from "y-presence";
 import Avatar from "./Avatar";
+import ClearRoom from "./ClearRoom";
 import { useSyncedStore } from "@syncedstore/react";
 
 export default function Room() {
@@ -69,8 +70,11 @@ export default function Room() {
           })}
         <Avatar initials="" variant="ghost" />
       </div>
-      <div className="prose p-4">
-        <h1>{title}</h1>
+      <div className="p-4 flex gap-4 justify-start items-center">
+        <div className="prose">
+          <h1>{title}</h1>
+        </div>
+        {self?.name && <ClearRoom />}
       </div>
       <div
         id="chat"

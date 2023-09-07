@@ -4,7 +4,8 @@ To do:
 
 - [x] Rationalise message submission/recording/display
 - [x] Move NPCs to back-end
-- [ ] Safety features for public usage: clear chat, prevent sign-in except with invite code, etc
+- [ ] Ability to clear chat
+- [ ] Safety features for public usage: prevent sign-in/clear chat/etc except with invite code
 - [ ] Check mobile view
 - [ ] Check path to local dev/usage
 - [ ] Scroll as NPC messages fill in
