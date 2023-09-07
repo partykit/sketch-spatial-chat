@@ -7,17 +7,22 @@ import Avatar from "./Avatar";
 import { useSyncedStore } from "@syncedstore/react";
 
 export default function Room() {
-  const { provider, name, store: globalStore } = useRoomContext();
+  const {
+    provider,
+    name,
+    store: globalStore,
+    currentUserId,
+  } = useRoomContext();
   const [newMessage, setNewMessage] = useState("");
   const store = useSyncedStore(globalStore);
   const [doReply, setDoReply] = useState(false);
   const chatListRef = useRef(null);
 
   if (!provider) return null;
-  console.log("room: got provider", provider);
+  // users is a map of clientId => metadata, but it has to be filtered to remove
+  // entries which have empty metadata @TODO
   const users = useUsers(provider.awareness);
   const self = useSelf(provider.awareness);
-
   // Get room details
   const room = RoomMap[name];
   if (!room) return null;
@@ -29,10 +34,10 @@ export default function Room() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const initials = self?.id.slice(-2).toUpperCase();
+    if (!self) return;
     store.messages.push({
-      userId: self?.id,
-      name: self?.initials,
+      userId: self.id,
+      name: self.initials,
       text: newMessage,
       isNpc: false,
     });
@@ -78,8 +83,7 @@ export default function Room() {
         {Array.from(users.entries())
           .sort()
           .map(([key, value]) => {
-            // The initials are the last two characters of value.id, uppercased
-            const isMe = self?.id === value.id;
+            const isMe = currentUserId === key;
             if (isMe) return null;
             return (
               <Avatar key={key} initials={value.initials} variant="normal" />
@@ -128,25 +132,27 @@ export default function Room() {
               })}
           </ul>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          className="w-full flex flex-row space-x-2"
-        >
-          <input
-            type="text"
-            value={newMessage}
-            className="p-1 w-full"
-            onChange={(e) => {
-              setNewMessage(e.target.value);
-            }}
-          />
-          <button
-            type="submit"
-            className="px-2 py-1 bg-white/60 hover:bg-white"
+        {self?.name && (
+          <form
+            onSubmit={handleSubmit}
+            className="w-full flex flex-row space-x-2"
           >
-            Send
-          </button>
-        </form>
+            <input
+              type="text"
+              value={newMessage}
+              className="p-1 w-full"
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+              }}
+            />
+            <button
+              type="submit"
+              className="px-2 py-1 bg-white/60 hover:bg-white"
+            >
+              Send
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

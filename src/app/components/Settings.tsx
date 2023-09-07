@@ -9,7 +9,7 @@ export default function Settings({
   setName: (name: string) => void;
   dismiss: () => void;
 }) {
-  const [nameInput, setNameInput] = useState("");
+  const [nameInput, setNameInput] = useState(name ?? "");
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -43,7 +43,8 @@ export default function Settings({
         />
         <button
           type="submit"
-          className="p-4 text-xl bg-white/80 hover:bg-white text-black"
+          className="p-4 text-xl bg-green-300/90 hover:bg-white text-green-900 disabled:bg-gray-200 disabled:text-gray-400 disabled:hover:bg-gray-200 disabled:hover:text-gray-400"
+          disabled={nameInput === ""}
         >
           Change Name
         </button>

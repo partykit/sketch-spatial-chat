@@ -16,12 +16,14 @@ interface RoomContextType {
   provider: YPartyKitProvider | null;
   name: string;
   store: any | null;
+  currentUserId: number | null;
 }
 
 export const RoomContext = createContext<RoomContextType>({
   provider: null,
   name: "",
   store: null,
+  currentUserId: null,
 });
 
 export function useRoomContext() {
@@ -44,10 +46,11 @@ const yDocShape = { messages: [] as Message[] };
 
 export default function RoomContextProvider(props: {
   name: string;
-  user: User | null;
+  currentUser: User | null;
   children: React.ReactNode;
 }) {
-  const { name, user } = props;
+  const { name, currentUser } = props;
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [doc] = useState(new Doc());
   /*const [provider, setProvider] = useState<YPartyKitProvider>(
@@ -73,10 +76,15 @@ export default function RoomContextProvider(props: {
   };
 
   useEffect(() => {
-    if (user && provider) {
-      provider.awareness.setLocalState(user);
+    if (!provider) return;
+    setCurrentUserId(provider.awareness.clientID);
+    if (currentUser) {
+      provider.awareness.setLocalState(currentUser);
     }
-  }, [user, provider]);
+    return () => {
+      provider.awareness.setLocalState(null);
+    };
+  }, [currentUser, provider]);
 
   useEffect(() => {
     const onSync = (connected: boolean) => {
@@ -92,7 +100,12 @@ export default function RoomContextProvider(props: {
 
   return (
     <RoomContext.Provider
-      value={{ provider: provider, name: name, store: store }}
+      value={{
+        provider: provider,
+        name: name,
+        store: store,
+        currentUserId: currentUserId,
+      }}
     >
       {loading && <p>Loading...</p>}
       {!loading && props.children}

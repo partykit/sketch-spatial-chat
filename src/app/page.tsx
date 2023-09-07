@@ -9,6 +9,7 @@ import RoomContextProvider from "./providers/room-context";
 import Room from "./components/Room";
 import Settings from "./components/Settings";
 import Avatar from "./components/Avatar";
+import SettingsCTA from "./components/SettingsCTA";
 
 import { RoomMap, type RoomName, DEFAULT_ROOM, type User } from "@/shared";
 
@@ -36,9 +37,7 @@ const makeInitials = (name: string) => {
 };
 
 const makeUser = (name: string) => {
-  console.log("makeUser: ", name);
   return {
-    id: generateRandomId(),
     name: name,
     initials: makeInitials(name),
   } as User;
@@ -59,11 +58,6 @@ export default function Page() {
 
   const custom = { source: previousRoom, destination: currentRoom };
 
-  /*useEffect(() => {
-    const userId = generateRandomId();
-    setUserId(userId);
-  }, []);*/
-
   return (
     <main className="relative min-h-screen h-screen max-h-screen flex flex-col bg-gray-800">
       {showSettings && (
@@ -76,6 +70,7 @@ export default function Page() {
       <div
         className={showSettings ? "pointer-events-none overscroll-none" : ""}
       >
+        {!user && <SettingsCTA showSettings={() => setShowSettings(true)} />}
         <div className="absolute top-0 right-0 p-12 z-10">
           <div onClick={() => setShowSettings(true)} className="cursor-pointer">
             {user !== null ? (
@@ -106,7 +101,7 @@ export default function Page() {
                   >
                     <RoomContextProvider
                       name={roomName as RoomName}
-                      user={user}
+                      currentUser={user}
                     >
                       <Room />
                     </RoomContextProvider>

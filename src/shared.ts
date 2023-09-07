@@ -74,7 +74,6 @@ export type RoomName = string;
 export const DEFAULT_ROOM: RoomName = "room1";
 
 export type User = {
-  id: string;
   name: string;
   initials: string;
 };
