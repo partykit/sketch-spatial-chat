@@ -3,7 +3,8 @@
 import { useState, useEffect, createContext, useContext, useMemo } from "react";
 
 import YPartyKitProvider from "y-partykit/provider";
-import { syncedStore, getYjsDoc } from "@syncedstore/core";
+import { syncedStore } from "@syncedstore/core";
+import { Doc } from "yjs";
 
 import {
   useUsers as yPresenceUseUsers,
@@ -39,38 +40,35 @@ const generateRandomId = () =>
 //const doc = new Doc()
 
 const yDocShape = { messages: [] as Message[] };
-const store = syncedStore(yDocShape);
-const ydoc = getYjsDoc(store);
 
 export default function RoomContextProvider(props: {
   name: string;
-  userId: string;
+  userId: string | null;
   children: React.ReactNode;
 }) {
   const { name, userId } = props;
   const [loading, setLoading] = useState(true);
-
-  const provider = useMemo(
-    () =>
-      new YPartyKitProvider(
-        process.env.NEXT_PUBLIC_PARTYKIT_HOST!,
-        name,
-        ydoc,
-        {
-          connect: false,
-        }
-      ),
-    []
+  const [doc] = useState(new Doc());
+  const [provider, setProvider] = useState<YPartyKitProvider>(
+    new YPartyKitProvider("localhost:1999", name, doc, { connect: false })
+  );
+  const [store, setStore] = useState(
+    syncedStore({ messages: [] as Message[] }, doc)
   );
 
   const onConnect = () => {
     setLoading(false);
-    provider.awareness.setLocalState({ id: userId });
   };
 
   const onDisconnect = () => {
     setLoading(true);
   };
+
+  useEffect(() => {
+    if (userId && provider) {
+      provider.awareness.setLocalState({ id: userId });
+    }
+  }, [userId, provider]);
 
   useEffect(() => {
     const onSync = (connected: boolean) => {

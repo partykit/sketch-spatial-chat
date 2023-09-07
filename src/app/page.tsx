@@ -1,14 +1,14 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import AnimatedRoomContainer from "./components/AnimatedRoomContainer";
 import Navigator from "./components/Navigator";
 import RoomContextProvider from "./providers/room-context";
-//import Room from "./room";
+import Room from "./components/Room";
 
-//import Avatar from "./avatar";
+import Avatar from "./components/Avatar";
 
 import { RoomMap, type RoomName, DEFAULT_ROOM } from "@/shared";
 
@@ -24,7 +24,7 @@ export default function Page() {
   const [currentRoom, setCurrentRoom] = useState(DEFAULT_ROOM);
   const [previousRoom, setPreviousRoom] = useState(DEFAULT_ROOM);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [userId, setUserId] = useState(generateRandomId());
+  const [userId, setUserId] = useState<string | null>(null);
 
   const handleRoomChange = (transitioningToRoom: RoomName) => {
     setIsTransitioning(true);
@@ -34,7 +34,12 @@ export default function Page() {
 
   const custom = { source: previousRoom, destination: currentRoom };
 
-  const initials = userId.slice(-2).toUpperCase();
+  useEffect(() => {
+    const userId = generateRandomId();
+    setUserId(userId);
+  }, []);
+
+  const initials = (userId: string) => userId.slice(-2).toUpperCase();
 
   return (
     <main className="relative min-h-screen h-screen max-h-screen flex flex-col bg-gray-800">
@@ -44,9 +49,11 @@ export default function Page() {
         <p>Active pane: {currentRoom}</p>
         <p>Transitioning: {isTransitioning ? "Yes" : "No"}</p>
       </div>
-      {/*<div className="absolute top-0 right-0 p-12 z-10">
-        <Avatar initials={initials} variant="highlight" />
-  </div>*/}
+      <div className="absolute top-0 right-0 p-12 z-10">
+        {userId !== null && (
+          <Avatar initials={initials(userId)} variant="highlight" />
+        )}
+      </div>
       <Navigator
         currentRoom={currentRoom}
         handleRoomChange={handleRoomChange}
@@ -70,8 +77,7 @@ export default function Page() {
                     name={roomName as RoomName}
                     userId={userId}
                   >
-                    {/*<Room />*/}
-                    <h1 className="text-4xl text-white">Room: {roomName}</h1>
+                    <Room />
                   </RoomContextProvider>
                 </AnimatedRoomContainer>
               )
