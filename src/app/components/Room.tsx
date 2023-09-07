@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { useEffect, useState, useRef } from "react";
-import { useRoomContext, Message } from "@/app/providers/room-context";
+import { useRoomContext } from "@/app/providers/room-context";
 import { RoomMap, Message } from "@/shared";
 import { useUsers, useSelf } from "y-presence";
 import Avatar from "./Avatar";

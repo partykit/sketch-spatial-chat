@@ -52,7 +52,7 @@ export default function RoomContextProvider(props: {
       doc,
       {
         connect: false,
-      }
+      },
     );
   }, [name, doc]);
 

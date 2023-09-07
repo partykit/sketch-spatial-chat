@@ -19,7 +19,7 @@ export default function Avatar(props: {
     <div
       className={classNames(
         "outline rounded-full flex justify-center items-center",
-        extraClasses[variant]
+        extraClasses[variant],
       )}
     >
       {initials}
