@@ -5,7 +5,7 @@ import { useState, useEffect, createContext, useContext, useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import { syncedStore } from "@syncedstore/core";
 import { Doc } from "yjs";
-import type { User, Message } from "@/shared";
+import { type User, yDocShape } from "@/shared";
 
 import {
   useUsers as yPresenceUseUsers,
@@ -16,7 +16,7 @@ interface RoomContextType {
   provider: YPartyKitProvider | null;
   name: string;
   store: any | null;
-  currentUserId: number | null;
+  currentUserId: string | null;
 }
 
 export const RoomContext = createContext<RoomContextType>({
@@ -30,15 +30,13 @@ export function useRoomContext() {
   return useContext(RoomContext);
 }
 
-const yDocShape = { messages: [] as Message[] };
-
 export default function RoomContextProvider(props: {
   name: string;
   currentUser: User | null;
   children: React.ReactNode;
 }) {
   const { name, currentUser } = props;
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [doc] = useState(new Doc());
   /*const [provider, setProvider] = useState<YPartyKitProvider>(
@@ -52,7 +50,7 @@ export default function RoomContextProvider(props: {
       doc,
       {
         connect: false,
-      },
+      }
     );
   }, [name, doc]);
 
@@ -68,7 +66,7 @@ export default function RoomContextProvider(props: {
 
   useEffect(() => {
     if (!provider) return;
-    setCurrentUserId(provider.awareness.clientID);
+    setCurrentUserId(provider.awareness.clientID.toString());
     if (currentUser) {
       provider.awareness.setLocalState(currentUser);
     }

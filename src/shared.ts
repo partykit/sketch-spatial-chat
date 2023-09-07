@@ -79,9 +79,12 @@ export type User = {
 };
 
 export type Message = {
-  userId: number;
+  userId: string;
   name: string;
   initials: string;
   isNpc: boolean;
   text: string;
+  seenByNpc: boolean;
 };
+
+export const yDocShape = { messages: [] as Message[] };

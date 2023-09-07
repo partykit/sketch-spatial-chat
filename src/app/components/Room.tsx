@@ -36,6 +36,7 @@ export default function Room() {
       initials: self.initials,
       text: messageInput,
       isNpc: false,
+      seenByNpc: false,
     } as Message;
 
     store.messages.push(message);
@@ -60,7 +61,7 @@ export default function Room() {
         {Array.from(users.entries())
           .sort()
           .map(([key, value]) => {
-            const isMe = currentUserId === key;
+            const isMe = currentUserId === key.toString();
             if (isMe) return null;
             return (
               <Avatar key={key} initials={value.initials} variant="normal" />
