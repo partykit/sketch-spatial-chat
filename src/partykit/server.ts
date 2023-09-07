@@ -58,24 +58,28 @@ export default {
       persist: true,
       callback: {
         async handler(ydoc) {
-          if (!chatRoom.npc) return;
-          const store = syncedStore(yDocShape, ydoc);
-          const finalMessage = store.messages[
-            store.messages.length - 1
-          ] as Message;
-          if (!finalMessage.seenByNpc) {
-            // Time to generate a response from the room's NPC, if any
-            finalMessage.seenByNpc = true;
-            store.messages.push({
-              userId: chatRoom.npc.userId,
-              name: chatRoom.npc.name,
-              initials: chatRoom.npc.name,
-              isNpc: true,
-              text: DEFAULT_NPC_MESSAGE,
-              seenByNpc: true,
-            } as Message);
+          try {
+            if (!chatRoom.npc) return;
+            const store = syncedStore(yDocShape, ydoc);
+            const finalMessage = store.messages[
+              store.messages.length - 1
+            ] as Message;
+            if (!finalMessage.seenByNpc) {
+              // Time to generate a response from the room's NPC, if any
+              finalMessage.seenByNpc = true;
+              store.messages.push({
+                userId: chatRoom.npc.userId,
+                name: chatRoom.npc.name,
+                initials: chatRoom.npc.name,
+                isNpc: true,
+                text: DEFAULT_NPC_MESSAGE,
+                seenByNpc: true,
+              } as Message);
 
-            await generate(room.env, chatRoom.npc, store.messages);
+              await generate(room.env, chatRoom.npc, store.messages);
+            }
+          } catch (e) {
+            console.error("Error in ydoc update handler", e);
           }
         },
       },
