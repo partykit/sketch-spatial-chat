@@ -12,7 +12,7 @@ import { getChatCompletionResponse, AIMessage } from "./utils/openai";
 
 const DEFAULT_NPC_MESSAGE = "...";
 
-function generate(env: Party["env"], npc: Npc, messages: Message[]) {
+async function generate(env: Party["env"], npc: Npc, messages: Message[]) {
   // This is the message we're updating
   const npcMessage = messages[messages.length - 1];
   if (!npcMessage.isNpc && npcMessage.text === DEFAULT_NPC_MESSAGE) {
@@ -40,7 +40,7 @@ function generate(env: Party["env"], npc: Npc, messages: Message[]) {
     .slice(-10);
 
   let text = "";
-  getChatCompletionResponse({
+  await getChatCompletionResponse({
     env: env,
     messages: [prompt, ...transcript],
     onStartCallback: () => {},
@@ -75,7 +75,7 @@ export default {
               seenByNpc: true,
             } as Message);
 
-            generate(room.env, chatRoom.npc, store.messages);
+            await generate(room.env, chatRoom.npc, store.messages);
           }
         },
       },
