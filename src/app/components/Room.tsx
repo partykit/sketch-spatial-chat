@@ -18,19 +18,12 @@ export default function Room() {
   const [doReply, setDoReply] = useState(false);
   const chatListRef = useRef(null);
 
-  if (!provider) return null;
-  // users is a map of clientId => metadata, but it has to be filtered to remove
-  // entries which have empty metadata @TODO
-  const users = useUsers(provider.awareness);
-  const self = useSelf(provider.awareness);
+  const users = useUsers(provider!.awareness);
+  const self = useSelf(provider!.awareness);
   // Get room details
   const room = RoomMap[name];
-  if (!room) return null;
-  const npc = room.npc;
-  const title = room.title;
-
-  // users is a Map of clientId => metadata. Get a list of metadata objects
-  const metadata = Array.from(users.values());
+  const npc = room?.npc;
+  const title = room?.title;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,7 +52,7 @@ export default function Room() {
       }
       setDoReply(false);
     }
-  }, [doReply, store.messages]);
+  }, [room, npc, doReply, store.messages, self]);
 
   /*useEffect(() => {
         // A message from the NPC!
@@ -75,6 +68,9 @@ export default function Room() {
       element.scrollTop = element.scrollHeight;
     }
   }, [store.messages]);
+
+  if (!provider) return null;
+  if (!room) return null;
 
   return (
     <div className="h-full max-h-full flex flex-col justify-between">
