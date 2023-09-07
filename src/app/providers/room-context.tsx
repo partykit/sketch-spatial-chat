@@ -37,11 +37,6 @@ export type Message = {
   isNpc: boolean;
 };
 
-const generateRandomId = () =>
-  Date.now().toString(36) + Math.random().toString(36).substring(2);
-
-//const doc = new Doc()
-
 const yDocShape = { messages: [] as Message[] };
 
 export default function RoomContextProvider(props: {
@@ -58,9 +53,14 @@ export default function RoomContextProvider(props: {
   );*/
 
   const provider = useMemo(() => {
-    return new YPartyKitProvider("localhost:1999", name, doc, {
-      connect: false,
-    });
+    return new YPartyKitProvider(
+      process.env.NEXT_PUBLIC_PARTYKIT_HOST!,
+      name,
+      doc,
+      {
+        connect: false,
+      }
+    );
   }, [name, doc]);
 
   const [store, setStore] = useState(
