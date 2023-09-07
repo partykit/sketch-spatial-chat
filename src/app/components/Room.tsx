@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { useEffect, useState, useRef } from "react";
 import { useRoomContext, Message } from "@/app/providers/room-context";
-import { RoomMap } from "@/shared";
+import { RoomMap, Message } from "@/shared";
 import { useUsers, useSelf } from "y-presence";
 import Avatar from "./Avatar";
 import { useSyncedStore } from "@syncedstore/react";
@@ -13,7 +13,7 @@ export default function Room() {
     store: globalStore,
     currentUserId,
   } = useRoomContext();
-  const [newMessage, setNewMessage] = useState("");
+  const [messageInput, setMessageInput] = useState("");
   const store = useSyncedStore(globalStore);
   const [doReply, setDoReply] = useState(false);
   const chatListRef = useRef(null);
@@ -28,38 +28,19 @@ export default function Room() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!self) return;
-    store.messages.push({
-      userId: self.id,
-      name: self.initials,
-      text: newMessage,
+    if (!messageInput) return;
+
+    const message = {
+      userId: currentUserId,
+      name: self.name,
+      initials: self.initials,
+      text: messageInput,
       isNpc: false,
-    });
-    setNewMessage("");
-    setDoReply(true);
+    } as Message;
+
+    store.messages.push(message);
+    setMessageInput("");
   };
-
-  useEffect(() => {
-    // If a new message comes in from the current user, reverse it and
-    // push it to the list
-    console.log("doReply: ", doReply);
-    if (doReply) {
-      const latestMessage = store.messages[store.messages.length - 1];
-      if (latestMessage?.userId === self?.id) {
-        if (npc) {
-          //trigger({ prompt: npc.prompt, userMessage: latestMessage.text})
-          console.log("Does nothing");
-        }
-      }
-      setDoReply(false);
-    }
-  }, [room, npc, doReply, store.messages, self]);
-
-  /*useEffect(() => {
-        // A message from the NPC!
-        if (data && npc) {
-            store.messages.push({ userId: npc.userId, name: npc.name, text: data.completion, isNpc: true })
-        }
-    }, [data])*/
 
   useEffect(() => {
     if (chatListRef.current) {
@@ -102,7 +83,7 @@ export default function Room() {
             {store.messages
               .toReversed()
               .map((message: Message, index: number) => {
-                const isMe = self?.id === message.userId;
+                const isMe = currentUserId === message.userId;
                 return (
                   <li
                     key={index}
@@ -113,14 +94,16 @@ export default function Room() {
                   >
                     <div className="grow-0">
                       <Avatar
-                        initials={message.name}
+                        initials={message.initials}
                         variant={message.isNpc ? "small-npc" : "small"}
                       />
                     </div>
                     <div className="px-3 py-1 bg-white rounded-2xl flex flex-col">
-                      {message.text.split("\n").map((line, index) => {
-                        return <span key={index}>{line}</span>;
-                      })}
+                      {message.text
+                        .split("\n")
+                        .map((line: string, index: number) => {
+                          return <span key={index}>{line}</span>;
+                        })}
                     </div>
                     <div className="grow-0 w-3"></div>
                   </li>
@@ -135,10 +118,10 @@ export default function Room() {
           >
             <input
               type="text"
-              value={newMessage}
+              value={messageInput}
               className="p-1 w-full"
               onChange={(e) => {
-                setNewMessage(e.target.value);
+                setMessageInput(e.target.value);
               }}
             />
             <button

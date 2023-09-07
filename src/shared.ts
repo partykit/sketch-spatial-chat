@@ -77,3 +77,11 @@ export type User = {
   name: string;
   initials: string;
 };
+
+export type Message = {
+  userId: number;
+  name: string;
+  initials: string;
+  isNpc: boolean;
+  text: string;
+};

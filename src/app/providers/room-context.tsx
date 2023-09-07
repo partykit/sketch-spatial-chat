@@ -5,7 +5,7 @@ import { useState, useEffect, createContext, useContext, useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import { syncedStore } from "@syncedstore/core";
 import { Doc } from "yjs";
-import { type User } from "@/shared";
+import type { User, Message } from "@/shared";
 
 import {
   useUsers as yPresenceUseUsers,
@@ -29,13 +29,6 @@ export const RoomContext = createContext<RoomContextType>({
 export function useRoomContext() {
   return useContext(RoomContext);
 }
-
-export type Message = {
-  userId: string;
-  name: string;
-  text: string;
-  isNpc: boolean;
-};
 
 const yDocShape = { messages: [] as Message[] };
 
@@ -63,9 +56,7 @@ export default function RoomContextProvider(props: {
     );
   }, [name, doc]);
 
-  const [store, setStore] = useState(
-    syncedStore({ messages: [] as Message[] }, doc)
-  );
+  const [store, setStore] = useState(syncedStore(yDocShape, doc));
 
   const onConnect = () => {
     setLoading(false);
