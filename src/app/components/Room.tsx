@@ -32,7 +32,7 @@ export default function Room() {
     const initials = self?.id.slice(-2).toUpperCase();
     store.messages.push({
       userId: self?.id,
-      name: initials,
+      name: self?.initials,
       text: newMessage,
       isNpc: false,
     });
@@ -81,8 +81,9 @@ export default function Room() {
             // The initials are the last two characters of value.id, uppercased
             const isMe = self?.id === value.id;
             if (isMe) return null;
-            const initials = value.id.slice(-2).toUpperCase();
-            return <Avatar key={key} initials={initials} variant="normal" />;
+            return (
+              <Avatar key={key} initials={value.initials} variant="normal" />
+            );
           })}
         <Avatar initials="" variant="ghost" />
       </div>

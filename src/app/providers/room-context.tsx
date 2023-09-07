@@ -5,6 +5,7 @@ import { useState, useEffect, createContext, useContext, useMemo } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import { syncedStore } from "@syncedstore/core";
 import { Doc } from "yjs";
+import { type User } from "@/shared";
 
 import {
   useUsers as yPresenceUseUsers,
@@ -43,15 +44,22 @@ const yDocShape = { messages: [] as Message[] };
 
 export default function RoomContextProvider(props: {
   name: string;
-  userId: string | null;
+  user: User | null;
   children: React.ReactNode;
 }) {
-  const { name, userId } = props;
+  const { name, user } = props;
   const [loading, setLoading] = useState(true);
   const [doc] = useState(new Doc());
-  const [provider, setProvider] = useState<YPartyKitProvider>(
+  /*const [provider, setProvider] = useState<YPartyKitProvider>(
     new YPartyKitProvider("localhost:1999", name, doc, { connect: false })
-  );
+  );*/
+
+  const provider = useMemo(() => {
+    return new YPartyKitProvider("localhost:1999", name, doc, {
+      connect: false,
+    });
+  }, [name, doc]);
+
   const [store, setStore] = useState(
     syncedStore({ messages: [] as Message[] }, doc)
   );
@@ -65,10 +73,10 @@ export default function RoomContextProvider(props: {
   };
 
   useEffect(() => {
-    if (userId && provider) {
-      provider.awareness.setLocalState({ id: userId });
+    if (user && provider) {
+      provider.awareness.setLocalState(user);
     }
-  }, [userId, provider]);
+  }, [user, provider]);
 
   useEffect(() => {
     const onSync = (connected: boolean) => {

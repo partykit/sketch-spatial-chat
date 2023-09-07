@@ -7,10 +7,10 @@ import AnimatedRoomContainer from "./components/AnimatedRoomContainer";
 import Navigator from "./components/Navigator";
 import RoomContextProvider from "./providers/room-context";
 import Room from "./components/Room";
-
+import Settings from "./components/Settings";
 import Avatar from "./components/Avatar";
 
-import { RoomMap, type RoomName, DEFAULT_ROOM } from "@/shared";
+import { RoomMap, type RoomName, DEFAULT_ROOM, type User } from "@/shared";
 
 // In units
 
@@ -20,11 +20,36 @@ import { RoomMap, type RoomName, DEFAULT_ROOM } from "@/shared";
 const generateRandomId = () =>
   Date.now().toString(36) + Math.random().toString(36).substring(2);
 
+const makeInitials = (name: string) => {
+  const words = name.split(" ");
+  switch (words.length) {
+    case 0:
+      return "";
+    case 1:
+      return words[0].slice(0, 1).toUpperCase();
+    default:
+      return (
+        words[0].slice(0, 1).toUpperCase() +
+        words[words.length - 1].slice(0, 1).toUpperCase()
+      );
+  }
+};
+
+const makeUser = (name: string) => {
+  console.log("makeUser: ", name);
+  return {
+    id: generateRandomId(),
+    name: name,
+    initials: makeInitials(name),
+  } as User;
+};
+
 export default function Page() {
   const [currentRoom, setCurrentRoom] = useState(DEFAULT_ROOM);
   const [previousRoom, setPreviousRoom] = useState(DEFAULT_ROOM);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleRoomChange = (transitioningToRoom: RoomName) => {
     setIsTransitioning(true);
@@ -34,57 +59,64 @@ export default function Page() {
 
   const custom = { source: previousRoom, destination: currentRoom };
 
-  useEffect(() => {
+  /*useEffect(() => {
     const userId = generateRandomId();
     setUserId(userId);
-  }, []);
-
-  const initials = (userId: string) => userId.slice(-2).toUpperCase();
+  }, []);*/
 
   return (
     <main className="relative min-h-screen h-screen max-h-screen flex flex-col bg-gray-800">
-      <div className="hidden absolute top-0 left-0 p-4 relative prose z-10">
-        <h1>Animation test</h1>
-        <p>Moving around between panes.</p>
-        <p>Active pane: {currentRoom}</p>
-        <p>Transitioning: {isTransitioning ? "Yes" : "No"}</p>
-      </div>
-      <div className="absolute top-0 right-0 p-12 z-10">
-        {userId !== null && (
-          <Avatar initials={initials(userId)} variant="highlight" />
-        )}
-      </div>
-      <Navigator
-        currentRoom={currentRoom}
-        handleRoomChange={handleRoomChange}
-        disabled={isTransitioning}
-      />
-      <AnimatePresence
-        custom={custom}
-        onExitComplete={() => setIsTransitioning(false)}
+      {showSettings && (
+        <Settings
+          name={user?.name ?? null}
+          setName={(name) => setUser(makeUser(name))}
+          dismiss={() => setShowSettings(false)}
+        />
+      )}
+      <div
+        className={showSettings ? "pointer-events-none overscroll-none" : ""}
       >
-        {
-          // Iterate over PaneMap getting the pane name and details object
-          Object.entries(RoomMap).map(([roomName, _]) => {
-            return (
-              currentRoom === roomName && (
-                <AnimatedRoomContainer
-                  key={roomName}
-                  name={roomName as RoomName}
-                  custom={custom}
-                >
-                  <RoomContextProvider
+        <div className="absolute top-0 right-0 p-12 z-10">
+          <div onClick={() => setShowSettings(true)} className="cursor-pointer">
+            {user !== null ? (
+              <Avatar initials={user.initials} variant="highlight" />
+            ) : (
+              <Avatar initials="" variant="ghost" />
+            )}
+          </div>
+        </div>
+        <Navigator
+          currentRoom={currentRoom}
+          handleRoomChange={handleRoomChange}
+          disabled={isTransitioning}
+        />
+        <AnimatePresence
+          custom={custom}
+          onExitComplete={() => setIsTransitioning(false)}
+        >
+          {
+            // Iterate over PaneMap getting the pane name and details object
+            Object.entries(RoomMap).map(([roomName, _]) => {
+              return (
+                currentRoom === roomName && (
+                  <AnimatedRoomContainer
+                    key={roomName}
                     name={roomName as RoomName}
-                    userId={userId}
+                    custom={custom}
                   >
-                    <Room />
-                  </RoomContextProvider>
-                </AnimatedRoomContainer>
-              )
-            );
-          })
-        }
-      </AnimatePresence>
+                    <RoomContextProvider
+                      name={roomName as RoomName}
+                      user={user}
+                    >
+                      <Room />
+                    </RoomContextProvider>
+                  </AnimatedRoomContainer>
+                )
+              );
+            })
+          }
+        </AnimatePresence>
+      </div>
     </main>
   );
 }

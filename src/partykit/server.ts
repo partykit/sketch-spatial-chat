@@ -24,7 +24,7 @@ export default {
         return new Response("No ydoc yet", { status: 404 });
       }
       const messages = ydoc.getArray("messages");
-      return new Response(JSON.stringify(messages.toJSON(), null, 2));
+      return new Response(JSON.stringify(messages, null, 2));
     }
 
     return new Response("Unsupported method", { status: 400 });
