@@ -12,6 +12,8 @@ import { syncedStore } from "@syncedstore/core";
 import { getChatCompletionResponse, AIMessage } from "./utils/openai";
 
 const DEFAULT_NPC_MESSAGE = "...";
+const MISSING_OPEN_AI_API_KEY =
+  "Oops! It looks like I can't process your request without proper authorization. Please make sure you have set up your OPENAI_API_KEY correctly. See README.md for instructions.";
 
 export default class SpatialChatServer implements PartyServer {
   constructor(readonly party: Party) {}
@@ -54,8 +56,6 @@ export default class SpatialChatServer implements PartyServer {
     const chatRoom = RoomMap[this.party.id] ?? null;
     if (!chatRoom.npc) return;
 
-    console.log("Handling ydoc change", chatRoom);
-
     // find the last message in the room
     const store = syncedStore(yDocShape, ydoc);
     const finalMessage = store.messages[store.messages.length - 1] as Message;
@@ -64,36 +64,14 @@ export default class SpatialChatServer implements PartyServer {
     if (!finalMessage.seenByNpc) {
       // time to generate a response from the room's NPC
       finalMessage.seenByNpc = true;
-      store.messages.push({
-        userId: chatRoom.npc.userId,
-        name: chatRoom.npc.name,
-        initials: chatRoom.npc.name,
-        isNpc: true,
-        text: DEFAULT_NPC_MESSAGE,
-        seenByNpc: true,
-      } as Message);
-
       await this.generateLLMResponse(chatRoom.npc, store.messages);
     }
   }
 
   async generateLLMResponse(npc: Npc, messages: Message[]) {
-    console.log("Generating response", npc);
-    // This is the message we're updating
-    const npcMessage = messages[messages.length - 1];
-    if (!npcMessage.isNpc && npcMessage.text === DEFAULT_NPC_MESSAGE) {
-      // Something's gone wrong, we're not updating the right message
-      return;
-    }
-
-    const prompt = {
-      role: "system",
-      content: npc.prompt,
-    } as AIMessage;
-
     // transcript is the most recent 10 messages, in the form:
     // { role: "user" | "assistant", text: string }
-    // It needs to be creates from messages, which is an array of Message,
+    // It needs to be created from messages, which is an array of Message,
     // and may be any length. It is an assisant message is isNpc is true,
     // and a user message otherwise.
     const transcript = messages
@@ -105,14 +83,38 @@ export default class SpatialChatServer implements PartyServer {
       })
       .slice(-10);
 
-    let text = "";
+    // create a response message with a placeholder text and send it to the client
+    messages.push({
+      userId: npc.userId,
+      name: npc.name,
+      initials: npc.name,
+      isNpc: true,
+      text: DEFAULT_NPC_MESSAGE,
+      seenByNpc: true,
+    });
+
+    // get reference to the message we just sent to the client
+    const npcMessage = messages[messages.length - 1];
+
+    // If the API key is not set, type out an error message to the user :)
+    if (typeof this.party.env.OPENAI_API_KEY === "undefined") {
+      npcMessage.text = "";
+      for await (const token of MISSING_OPEN_AI_API_KEY.split(" ")) {
+        npcMessage.text += token + " ";
+        await new Promise((resolve) => setTimeout(resolve, 32));
+      }
+      return;
+    }
+
+    const prompt = { role: "system", content: npc.prompt } as AIMessage;
     await getChatCompletionResponse({
       env: this.party.env,
       messages: [prompt, ...transcript],
-      onStartCallback: () => {},
+      onStartCallback: () => {
+        npcMessage.text = "";
+      },
       onTokenCallback: (token) => {
-        text += token;
-        npcMessage.text = text;
+        npcMessage.text += token;
       },
     });
   }
