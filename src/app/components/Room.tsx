@@ -63,7 +63,7 @@ export default function Room() {
           .sort()
           .map(([key, value]) => {
             // Skip if value (the awareness object) is empty
-            if (value.length === 0) return null;
+            if (!value.name) return null;
             const isMe = currentUserId === key.toString();
             if (isMe) return null;
             return (
