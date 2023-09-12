@@ -1,8 +1,8 @@
 import type {
   Party,
-  PartyServer,
-  PartyConnection,
-  PartyRequest,
+  PartyKitServer,
+  Connection,
+  Request,
 } from "partykit/server";
 import type { Doc as YDoc } from "yjs";
 import { onConnect } from "y-partykit";
@@ -13,12 +13,12 @@ import { getChatCompletionResponse, AIMessage } from "./utils/openai";
 
 const DEFAULT_NPC_MESSAGE = "...";
 const MISSING_OPEN_AI_API_KEY =
-  "Oops! It looks like I can't process your request without proper authorization. Please make sure you have set up your OPENAI_API_KEY correctly. See README.md for instructions.";
+  "Oops! I can’t process your request. Please make sure you have set up your OPENAI_API_KEY correctly. See README.md for instructions.";
 
-export default class SpatialChatServer implements PartyServer {
+export default class SpatialChatServer implements PartyKitServer {
   constructor(readonly party: Party) {}
 
-  async onConnect(ws: PartyConnection) {
+  async onConnect(ws: Connection) {
     return onConnect(ws, this.party, {
       persist: true,
       callback: {
@@ -35,7 +35,7 @@ export default class SpatialChatServer implements PartyServer {
 
   // For debug, dump the current state of the yDoc
   // When run locally, this can be seen at http://127.0.0.1:1999/party/room
-  async onRequest(req: PartyRequest) {
+  async onRequest(req: Request) {
     const roomStorage = new YPartyKitStorage(this.party.storage);
     const ydoc = await roomStorage.getYDoc(this.party.id);
 
