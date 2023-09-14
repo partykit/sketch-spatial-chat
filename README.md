@@ -4,7 +4,7 @@ To do:
 
 - [x] Rationalise message submission/recording/display
 - [x] Move NPCs to back-end
-- [ ] Hide users with stale presence from facepile
+- [x] Hide users with stale presence from facepile
 - [x] Ability to clear chat
 - [ ] Safety features for public usage: prevent sign-in/clear chat/etc except with invite code
 - [ ] Check mobile view
@@ -37,4 +37,3 @@ NEXT_PUBLIC_PARTYKIT_HOST=spatial-chat.{your-github-username}.partykit.dev
 ```
 
 Make sure you've [deployed the PartyKit server](#partykit-deployment) to get the PartyKit host name for your account.
-

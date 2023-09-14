@@ -50,6 +50,13 @@ export default function Page() {
   const [user, setUser] = useState<User | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
+  useEffect(() => {
+    const name = window.localStorage.getItem("spatial-chat:name");
+    if (name) {
+      setUser(makeUser(name));
+    }
+  }, []);
+
   const handleRoomChange = (transitioningToRoom: RoomName) => {
     setIsTransitioning(true);
     setPreviousRoom(currentRoom);

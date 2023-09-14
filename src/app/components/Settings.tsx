@@ -26,6 +26,7 @@ export default function Settings({
     e.preventDefault();
     if (!nameInput) return;
     setName(nameInput);
+    window.localStorage.setItem("spatial-chat:name", nameInput);
     setNameInput("");
     dismiss();
   };
