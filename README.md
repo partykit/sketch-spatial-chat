@@ -20,6 +20,15 @@ This project uses an `.env` file to configure both the PartyKit server and the N
 
 For local development, copy `.env.example` file to `.env`, and populate OpenAI API environment variables.
 
+Then run the PartyKit server and run the app:
+
+```sh
+npx partykit dev
+npm run dev
+```
+
+Visit [localhost:3000](http://localhost:3000) in your browser.
+
 ### PartyKit deployment
 
 When you're ready to deploy the PartyKit server, deploy with the following command to upload the environment variables from your `.env` file to the PartyKit platform.
