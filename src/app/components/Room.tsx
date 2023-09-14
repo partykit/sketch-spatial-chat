@@ -72,11 +72,18 @@ export default function Room() {
           })}
         <Avatar initials="" variant="ghost" />
       </div>
-      <div className="p-4 flex gap-4 justify-start items-center">
-        <div className="prose">
-          <h1>{title}</h1>
+      <div className="p-4 flex flex-col gap-1 justify-start items-start">
+        <div className="flex flex-row gap-2">
+          <div className="prose">
+            <h1>{title}</h1>
+          </div>
+          {self?.name && <ClearRoom />}
         </div>
-        {self?.name && <ClearRoom />}
+        {room?.subtitle && (
+          <h4 className="text-black/50 font-semibold text-lg w-2/3">
+            {room.subtitle}
+          </h4>
+        )}
       </div>
       <div
         id="chat"
