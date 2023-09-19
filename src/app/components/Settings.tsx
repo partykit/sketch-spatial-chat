@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 
 export default function Settings({
   name,
@@ -53,6 +54,32 @@ export default function Settings({
       <button onClick={dismiss} className="underline text-white/80">
         Cancel
       </button>
+      <div className="fixed bottom-0 left-0 w-full">
+        <div className="flex flex-row justify-center pb-8 gap-6 text-white/80">
+          <div>
+            Made with{" "}
+            <Link className="underline" href="https://partykit.io">
+              PartyKit
+            </Link>
+          </div>
+          <div>
+            <Link
+              className="underline"
+              href="https://github.com/partykit/sketch-spatial-chat"
+            >
+              GitHub
+            </Link>
+          </div>
+          <div>
+            <Link
+              className="underline"
+              href="https://blog.partykit.io/posts/thinking-hats-and-spatial-chat"
+            >
+              More info
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
